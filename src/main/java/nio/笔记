@@ -1,0 +1,85 @@
+Channel—Socket；
+EventLoop—控制流、多线程处理、并发,用于处理连接的生命周期中所发生的事件
+ChannelFuture—异步通知。
+
+一个EventLoopGroup 包含一个或者多个EventLoop；
+一个EventLoop 在它的生命周期内只和一个Thread 绑定,所有由EventLoop 处理的I/O 事件都将在它专有的Thread 上被处理；
+一个Channel 在它的生命周期内只注册于一个EventLoop；
+一个EventLoop 可能会被分配给一个或多个Channel。
+一个Channel 的I/O 操作都是由相同的Thread 执行的，消除了对于同步的需要。
+
+ChannelFuture:在某个操作完成时（无论是否成功）得到通知,所有属于同一个Channel 的操作都被保证其将以它们被调用的顺序被执行。(netty中所有的I/O操作都是异步的,因为一个操作可能不会立即返回。)
+ChannelHandler:处理入站和出站数据的应用程序逻辑的容器
+
+ChannelPipeline 提供了ChannelHandler 链的容器，并定义了用于在该链上传播入站和出站事件流的API
+在Netty 中，有两种发送消息的方式。
+你可以直接写到Channel 中，也可以写到和Channel-Handler相关联的ChannelHandlerContext 对象中。前一种方式将会导致消息从Channel-Pipeline 的尾端开始流动，
+而后者将导致消息从ChannelPipeline 中的下一个Channel-Handler 开始流动。
+
+如果一个消息或者任何其他的入站事件被读取，那么它会从ChannelPipeline 的头部开始流动，并被传递给第一个ChannelInboundHandler,直到尾端
+数据的出站运动（即正在被写的数据）在概念上也是一样的。在这种情况下，数据将从ChannelOutboundHandler 链的尾端开始流动，直到它到达链的头部为止
+
+编码器和解码器
+入栈:解码字节发送下一个ChannelInboundHandle
+出站消息的模式：编码器将消息转换为字节，并将它们转发给下一个ChannelOutboundHandler。
+SimpleChannelInboundHandler:T处理的消息的Java 类型。
+
+Bootstrap:为应用程序的网络层配置提供了容器，这涉及将一个进程绑定到某个指定的端口，或者将一个进程连接到另一个运行在某个指定主机的指定端口上的进程
+有两种类型的引导：一种用于客户端（简单地称为Bootstrap），而另一种（ServerBootstrap）用于服务器。
+ServerBootstrap需要两个EventLoopGroup,因为服务器需要两组不同的Channel。
+    第一组将只包含一个ServerChannel，代表服务器自身的已绑定到某个本地端口的正在监听的套接字。
+    第二组将包含所有已创建的用来处理传入客户端连接（对于每个服务器已经接受的连接都有一个）的Channel。
+
+discardReadBytes:可丢弃字节的分段包含了已经被读过的字节。通过调用discardRead-Bytes()方法，可以丢弃它们并回收空间
+mark(int readlimit)和reset()方法，这些方法分别被用来将流中的当前位置标记为指定的值，以及将流重置到该位置。
+markReaderIndex()、markWriterIndex()、resetWriterIndex()和resetReaderIndex()来标记和重置ByteBuf 的readerIndex 和writerIndex。这
+
+Unpooled:提供了静态的辅助方法来创建未池化的ByteBuf实例。
+ByteBufHolder:除了实际的数据负载之外，我们还需要存储各种属性值。HTTP 响应便是一个很好的例子，除了表示为字节的内容，还包括状态码、cookie 等。
+ByteBufUtil:提供了用于操作ByteBuf 的静态的辅助方法。
+
+
+ChannelPromise与ChannelFuture: ChannelOutboundHandler中的大部分方法都需要一个
+ChannelPromise参数，以便在操作完成时得到通知。ChannelPromise是ChannelFuture的一个
+子类，其定义了一些可写的方法，如setSuccess()和setFailure()，从而使ChannelFuture不可变
+
+设置内存泄漏检测级别
+java -D io.netty.leakDetectionLevel=ADVANCED
+DISABLED 禁用泄漏检测。只有在详尽的测试之后才应设置为这个值
+SIMPLE 使用1%的默认采样率检测并报告任何发现的泄露。这是默认级别，适合绝大部分的情况
+ADVANCED 使用默认的采样率，报告所发现的任何的泄露以及对应的消息被访问的位置
+PARANOID 类似于ADVANCED，但是其将会对每次（对消息的）访问都进行采样。这对性能将会有很大的影响，应该只在调试阶段使用
+
+
+SimpleChannelInboundHandler 与ChannelInboundHandler
+        你可能会想：为什么我们在客户端使用的是SimpleChannelInboundHandler，而不是在Echo-
+        ServerHandler 中所使用的ChannelInboundHandlerAdapter 呢？这和两个因素的相互作用有
+        关：业务逻辑如何处理消息以及Netty 如何管理资源。
+        在客户端，当channelRead0()方法完成时，你已经有了传入消息，并且已经处理完它了。当该方
+        法返回时，SimpleChannelInboundHandler 负责释放指向保存该消息的ByteBuf 的内存引用。
+        在EchoServerHandler 中，你仍然需要将传入消息回送给发送者，而write()操作是异步的，直
+        到channelRead()方法返回后可能仍然没有完成（如代码清单2-1 所示）。为此，EchoServerHandler
+        扩展了ChannelInboundHandlerAdapter，其在这个时间点上不会释放消息。
+        消息在EchoServerHandler 的channelReadComplete()方法中，当writeAndFlush()方
+        法被调用时被释放
+
+
+
+
+将字节解码为消息——ByteToMessageDecoder 和ReplayingDecoder；
+将一种消息类型解码为另一种——MessageToMessageDecoder。
+
+
+解码器通常需要在Channel 关闭之后产生最后一个消息（因此也就有了decodeLast()方法）。
+这显然不适用于编码器的场景——在连接被关闭之后仍然产生一个消息是毫无意义的。
+
+
+* 双向编码解码
+ * ByteToMessageCodec:
+ * MessageToMessageCodec:将一种消息格式转换为另外一种消息格式的例子。
+
+
+
+
+
+
