@@ -1,3 +1,4 @@
+/*
 package nio.chapter6;
 
 import io.netty.channel.AbstractChannelHandlerContext;
@@ -6,9 +7,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultChannelPipeline;
 import io.netty.util.concurrent.EventExecutor;
 
+*/
 /**
  * Created by kerr.
- */
+ *//*
+
 public class DummyChannelHandlerContext extends AbstractChannelHandlerContext {
     public static ChannelHandlerContext DUMMY_INSTANCE = new DummyChannelHandlerContext(
             null,
@@ -28,3 +31,4 @@ public class DummyChannelHandlerContext extends AbstractChannelHandlerContext {
         return null;
     }
 }
+*/

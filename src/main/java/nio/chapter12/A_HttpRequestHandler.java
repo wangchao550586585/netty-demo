@@ -1,6 +1,5 @@
 package nio.chapter12;
 
-import com.sun.org.apache.regexp.internal.RE;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslHandler;

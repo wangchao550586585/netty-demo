@@ -1,3 +1,4 @@
+/*
 package nio.chapter5;
 
 import io.netty.buffer.ByteBuf;
@@ -15,18 +16,22 @@ import java.util.Random;
 
 import static nio.chapter5.DummyChannelHandlerContext.DUMMY_INSTANCE;
 
+*/
 /**
  * ByteBuf 的使用模式
- */
+ *//*
+
 public class ByteBufExamples {
     private static final ByteBuf BYTE_BUF_FROM_SOMEWHERE = Unpooled.buffer(1024);
     private final static Random random = new Random();
 
-    /**
+    */
+/**
      * 支撑数组
      * 最常用的ByteBuf 模式是将数据存储在JVM 的堆空间中。
      * 这种模式被称为支撑数组（backing array），它能在没有使用池化的情况下提供快速的分配和释放。
-     */
+     *//*
+
     public static void heapBuffer() {
         ByteBuf heapBuf = BYTE_BUF_FROM_SOMEWHERE;
         //检查ByteBuf是否有一个支撑数组
@@ -41,9 +46,11 @@ public class ByteBufExamples {
         }
     }
 
-    /**
+    */
+/**
      * 访问直接缓冲区的数据
-     */
+     *//*
+
     public static void directBuffer() {
         ByteBuf directBuf = BYTE_BUF_FROM_SOMEWHERE;
         //检查 ByteBuf 是否由数组支撑。如果不是，则这是一个直接缓冲区
@@ -60,14 +67,16 @@ public class ByteBufExamples {
 
     }
 
-    /**
+    */
+/**
      * 使用 ByteBuffer 的复合缓冲区模式
      * 它为多个ByteBuffer提供一个聚合视图
      * 分配和复制操作,以及对数组的管理,效率低下
      *
      * @param header
      * @param body
-     */
+     *//*
+
     public static void byteBufferComposite(ByteBuffer header, ByteBuffer body) {
         ByteBuffer[] message = {header, body};
         ByteBuffer message2 = ByteBuffer.allocate(header.remaining() + body.remaining());
@@ -76,10 +85,12 @@ public class ByteBufExamples {
         message2.flip();
     }
 
-    /**
+    */
+/**
      * 使用 CompositeByteBuf 的复合缓冲区模式
      * 可能不支持支撑数组
-     */
+     *//*
+
     public static void byteBufComposite() {
         CompositeByteBuf messageBuf = Unpooled.compositeBuffer();
         ByteBuf headerBuf = BYTE_BUF_FROM_SOMEWHERE;
@@ -94,13 +105,15 @@ public class ByteBufExamples {
         }
     }
 
-    /**
+    */
+/**
      * 代码清单 5-6 访问数据
      * 访问数据
      * 不会改变
      * readerIndex 也不会改变writerIndex。
      * 通过调用readerIndex(index)或者writerIndex(index)来手动移动这两者
-     */
+     *//*
+
     public static void byteBufRelativeAccess() {
         ByteBuf buffer = BYTE_BUF_FROM_SOMEWHERE;
         for (int i = 0; i < buffer.capacity(); i++) {
@@ -109,9 +122,11 @@ public class ByteBufExamples {
         }
     }
 
-    /**
+    */
+/**
      * 代码清单 5-7 读取所有数据
-     */
+     *//*
+
     public static void readAllData() {
         ByteBuf buffer = BYTE_BUF_FROM_SOMEWHERE;
         while (buffer.isReadable()) {
@@ -119,9 +134,11 @@ public class ByteBufExamples {
         }
     }
 
-    /**
+    */
+/**
      * 代码清单 5-8 写数据
-     */
+     *//*
+
     public static void write() {
         ByteBuf buffer = BYTE_BUF_FROM_SOMEWHERE;
         while (buffer.writableBytes() >= 4) {
@@ -129,20 +146,24 @@ public class ByteBufExamples {
         }
     }
 
-    /**
+    */
+/**
      * 代码清单 5-9 使用 ByteBufProcessor 来寻找\r
      * <p>
      * use {@link io.netty.buffer.ByteBufProcessor in Netty 4.0.x}
-     */
+     *//*
+
     public static void byteProcessor() {
         ByteBuf buffer = BYTE_BUF_FROM_SOMEWHERE;
         int index = buffer.forEachByte(ByteProcessor.FIND_CR);
     }
 
-    /**
+    */
+/**
      * 代码清单 5-10 对 ByteBuf 进行切片
      * duplicate/slice/Unpooled.unmodifiableBuffer/order/readSlice:返回新的ByteBuf实例,它具有自己的读索引、写索引和标记索引。其内部存储和JDK 的ByteBuffer 一样也是共享的
-     */
+     *//*
+
     public static void byteBufSlice() {
         Charset utf8 = Charset.forName("UTF-8");
         ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
@@ -153,9 +174,11 @@ public class ByteBufExamples {
         assert buf.getByte(0) == sliced.getByte(0);
     }
 
-    /**
+    */
+/**
      * 代码清单 5-11 复制一个 ByteBuf
-     */
+     *//*
+
     public static void byteBufCopy() {
         Charset utf8 = Charset.forName("UTF-8");
         ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
@@ -166,9 +189,11 @@ public class ByteBufExamples {
         assert buf.getByte(0) != copy.getByte(0);
     }
 
-    /**
+    */
+/**
      * 代码清单 5-12 get()和 set()方法的用法
-     */
+     *//*
+
     public static void byteBufSetGet() {
         Charset utf8 = Charset.forName("UTF-8");
         ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
@@ -182,9 +207,11 @@ public class ByteBufExamples {
         assert writerIndex == buf.writerIndex();
     }
 
-    /**
+    */
+/**
      * 代码清单 5-13 ByteBuf 上的 read()和 write()操作
-     */
+     *//*
+
     public static void byteBufWriteRead() {
         Charset utf8 = Charset.forName("UTF-8");
         //创建一个新的 ByteBuf 以保存给定字符串的字节
@@ -205,7 +232,8 @@ public class ByteBufExamples {
     private static final Channel CHANNEL_FROM_SOMEWHERE = new NioSocketChannel();
     private static final ChannelHandlerContext CHANNEL_HANDLER_CONTEXT_FROM_SOMEWHERE = DUMMY_INSTANCE;
 
-    /**
+    */
+/**
      * 代码清单 5-14 获取一个到 ByteBufAllocator 的引用
      * 可以创建基于直接内存,堆的buf实例
      * 通过interface ByteBufAllocator 实现了
@@ -215,7 +243,8 @@ public class ByteBufExamples {
      前者池化了ByteBuf的实例以提高性能并最大限度地减少内存碎片。此实现使用了一种称为jemalloc的已被大量现代操作系统所采用的高效方法来分配内存。
      后者的实现不池化ByteBuf实例，并且在每次它被调用时都会返回一个新的实例。
      Netty默认使用了PooledByteBufAllocator
-     */
+     *//*
+
     public static void obtainingByteBufAllocatorReference() {
         Channel channel = CHANNEL_FROM_SOMEWHERE;
         //从 Channel 获取一个到ByteBufAllocator 的引用
@@ -226,9 +255,11 @@ public class ByteBufExamples {
         ByteBufAllocator allocator1 = ctx.alloc();
     }
 
-    /**
+    */
+/**
      * 代码清单 5-15 引用计数
-     */
+     *//*
+
     public static  void referenceCounting(){
         Channel channel=CHANNEL_FROM_SOMEWHERE;
         ByteBufAllocator allocator = channel.alloc();
@@ -237,10 +268,12 @@ public class ByteBufExamples {
         assert buf.refCnt()==1;
     }
 
-    /**
+    */
+/**
      * 代码清单 5-16 释放引用计数的对象
      * 谁负责释放 一般来说，是由最后访问（引用计数）对象的那一方来负责将它释放
-     */
+     *//*
+
     public static void releaseReferenceCountedObject(){
         ByteBuf buf=BYTE_BUF_FROM_SOMEWHERE;
         //减少到该对象的活动引用。当减少到 0 时，该对象被释放，并且该方法返回 true
@@ -248,3 +281,4 @@ public class ByteBufExamples {
     }
 }
 
+*/
